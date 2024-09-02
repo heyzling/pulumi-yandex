@@ -25,7 +25,7 @@ import (
 	shimv2 "github.com/pulumi/pulumi-terraform-bridge/v3/pkg/tfshim/sdk-v2"
 
 	// Replace this provider with the provider you are bridging.
-	yandex "github.com/iwahbe/terraform-provider-yandex/provider"
+	yandex "github.com/yandex-cloud/terraform-provider-yandex/yandex"
 
 	"github.com/heyzling/pulumi-yandex.git/provider/pkg/version"
 )
@@ -96,7 +96,7 @@ func Provider() tfbridge.ProviderInfo {
 		//   After that, you can proceed as normal.
 		//
 		// This is where you give the bridge a handle to the upstream terraform provider. SDKv2
-		// convention is to have a function at "github.com/iwahbe/terraform-provider-yandex/provider".New
+		// convention is to have a function at "github.com/yandex-cloud/terraform-provider-yandex/yandex".New
 		// which takes a version and produces a factory function. The provider you are bridging may
 		// not do that. You will need to find the function (generally called in upstream's main.go)
 		// that produces a:
@@ -106,7 +106,7 @@ func Provider() tfbridge.ProviderInfo {
 		// - "github.com/hashicorp/terraform-plugin-framework/provider".Provider (for plugin-framework)
 		//
 		//nolint:lll
-		P: shimv2.NewProvider(yandex.New(version.Version)()),
+		P: shimv2.NewProvider(yandex.NewSDKProvider()),
 
 		Name:    "yandex",
 		Version: version.Version,
@@ -115,7 +115,7 @@ func Provider() tfbridge.ProviderInfo {
 		DisplayName: "",
 		// Change this to your personal name (or a company name) that you would like to be shown in
 		// the Pulumi Registry if this package is published there.
-		Publisher: "yandex",
+		Publisher: "heyzling",
 		// LogoURL is optional but useful to help identify your package in the Pulumi Registry
 		// if this package is published there.
 		//
@@ -125,7 +125,7 @@ func Provider() tfbridge.ProviderInfo {
 		// PluginDownloadURL is an optional URL used to download the Provider
 		// for use in Pulumi programs
 		// e.g https://github.com/org/pulumi-provider-name/releases/
-		PluginDownloadURL: "",
+		PluginDownloadURL: "https://github.com/heyzling/pulumi-yandex/releases/",
 		Description:       "A Pulumi package for creating and managing yandex cloud resources.",
 		// category/cloud tag helps with categorizing the package in the Pulumi Registry.
 		// For all available categories, see `Keywords` in
@@ -136,7 +136,7 @@ func Provider() tfbridge.ProviderInfo {
 		Repository: "https://github.com/heyzling/pulumi-yandex.git",
 		// The GitHub Org for the provider - defaults to `terraform-providers`. Note that this should
 		// match the TF provider module's require directive, not any replace directives.
-		GitHubOrg:    "",
+		GitHubOrg:    "yandex-cloud",
 		MetadataInfo: tfbridge.NewProviderMetadata(metadata),
 		Config:       map[string]*tfbridge.SchemaInfo{
 			// Add any required configuration here, or remove the example below if
