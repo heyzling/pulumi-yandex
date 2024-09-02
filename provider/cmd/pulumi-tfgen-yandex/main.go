@@ -15,9 +15,9 @@
 package main
 
 import (
-	"github.com/pulumi/pulumi-terraform-bridge/v3/pkg/tfgen"
 	yandex "github.com/heyzling/pulumi-yandex.git/provider"
 	"github.com/heyzling/pulumi-yandex.git/provider/pkg/version"
+	"github.com/pulumi/pulumi-terraform-bridge/v3/pkg/tfgen"
 )
 
 func main() {

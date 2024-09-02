@@ -17,9 +17,9 @@ package main
 import (
 	_ "embed"
 
-	"github.com/pulumi/pulumi-terraform-bridge/v3/pkg/tfbridge"
 	yandex "github.com/heyzling/pulumi-yandex.git/provider"
 	"github.com/heyzling/pulumi-yandex.git/provider/pkg/version"
+	"github.com/pulumi/pulumi-terraform-bridge/v3/pkg/tfbridge"
 )
 
 //go:embed schema.json
