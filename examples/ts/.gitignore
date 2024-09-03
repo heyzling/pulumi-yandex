@@ -1,0 +1,14 @@
+
+# runtime deps and bins
+node_modules
+.teamcity/target
+
+# env files
+**.env*
+
+# logs
+*.log
+
+# artifacts
+inventory*.json
+state*.json

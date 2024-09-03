@@ -1,0 +1,6 @@
+# docs: https://www.pulumi.com/docs/reference/pulumi-yaml/
+
+name: bridge-test
+runtime: nodejs
+description: bridge-test
+main: src # где находится исходный код
