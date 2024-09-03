@@ -2,7 +2,15 @@
 // https://github.com/microsoft/vscode-dev-containers/tree/v0.202.3/containers/hugo
 {
   "name": "TFProvider",
+  "remoteUser": "${localEnv:USER}",
+  "containerUser": "${localEnv:USER}",
   "build": {
-      "dockerfile": "Dockerfile"
+    "dockerfile": "Dockerfile",
+    "args": {
+      "PULUMI_DEV_IMAGE_VERSION": "3.130.0",
+      "USERNAME": "${localEnv:USER}",
+      "USERID": "${localEnv:USERID:1000}",
+      "GROUPID": "${localEnv:GROUPID:1000}"
+    }
   }
 }
