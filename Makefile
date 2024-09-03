@@ -1,23 +1,29 @@
 PROJECT_NAME := yandex Package
 
-SHELL            := /bin/bash
-PACK             := yandex
-PROJECT          := github.com/heyzling/pulumi-yandex.git
-NODE_MODULE_NAME := @yandex/${PACK}
-TF_NAME          := ${PACK}
-PROVIDER_PATH    := provider
-VERSION_PATH     := ${PROVIDER_PATH}/pkg/version.Version
+SHELL               := /bin/bash
+PACK                := yandex
+PROJECT             := github.com/heyzling/pulumi-yandex.git
+NODE_MODULE_NAME    := @yandex/${PACK}
+TF_NAME             := ${PACK}
+PROVIDER_PATH       := provider
+VERSION_PATH        := ${PROVIDER_PATH}/pkg/version.Version
 
-TFGEN           := pulumi-tfgen-${PACK}
-PROVIDER        := pulumi-resource-${PACK}
-VERSION         := $(shell pulumictl get version)
+TFGEN               := pulumi-tfgen-${PACK}
+PROVIDER            := pulumi-resource-${PACK}
+VERSION             := $(shell pulumictl get version)
 
-TESTPARALLELISM := 4
+TESTPARALLELISM     := 4
 
-WORKING_DIR     := $(shell pwd)
+WORKING_DIR         := $(shell pwd)
 
-OS := $(shell uname)
-EMPTY_TO_AVOID_SED := 
+OS                  := $(shell uname)
+OS_LOWER            := $(shell uname | tr '[:upper:]' '[:lower:]')
+EMPTY_TO_AVOID_SED  := 
+SEMVER_REGEX        := ^v[0-9]+\.[0-9]+\.[0-9]+$
+
+ARCH_NAME           := amd64
+PACKAGE_NAME        := pulumi-resource-${PACK}-v${VERSION}-${OS_LOWER}-${ARCH_NAME}.tar.gz
+PACKAGE_PATH        := ${WORKING_DIR}/bin/${PACKAGE_NAME}
 
 prepare::
 	@if test -z "${NAME}"; then echo "NAME not set"; exit 1; fi
@@ -124,3 +130,53 @@ install_sdks:: install_dotnet_sdk install_python_sdk install_nodejs_sdk
 test::
 	cd examples && go test -v -tags=all -parallel ${TESTPARALLELISM} -timeout 2h
 
+build_package::
+	tar -czvf ${PACKAGE_PATH} -C ${PWD}/bin ${PROVIDER}
+
+
+publish_provider::
+	@echo "Upload to repo: $$PROVIDER_REPO"
+	@curl --fail --progress-bar  -u "$$STORAGE_USER":"$$STORAGE_PASSWORD" \
+		"$$PROVIDER_REPO" --upload-file "${PACKAGE_PATH}" \
+		| cat
+
+publish_sdk_nodejs::
+	@echo "Upload to repo: $$NPM_REPO"
+	@cd sdk/nodejs/bin && \
+	rm -rf .npmrc && \
+	NPM_AUTH=$$(echo -n "$$NPM_USER:$$NPM_PASSWORD" | base64) && \
+	NPM_AUTH_FIELD=$$(echo $NPM_REPO | sed 's/^https\?://') && \
+	npm config --location project set registry="$NPM_REPO" && \
+	npm config --location project set "$$NPM_AUTH_FIELD:_auth=$$NPM_AUTH" && \
+	npm --location project publish && \
+	rm -rf .npmrc
+
+# check git state is clean, everything commited, no untracked files
+exit_on_dirty_git::
+ifneq ($(shell git status --porcelain=v1 2>/dev/null | wc -l),0)
+	@echo "Repository is not clean! Commit all your changes and resolve untracked files!"
+	@exit 1
+endif
+	@echo "All clean."
+
+
+check_git_tag::
+	@if [ -z "$(git_tag)" ]; then \
+		echo "git_tag is empty! Usage example: make git_tag=v0.14.0 set_version_tag"; \
+		exit 1; \
+	fi;
+	@if [[ "$(git_tag)" =~ $(SEMVER_REGEX) ]]; then \
+		echo "git_tag is valid: $(git_tag)"; \
+	else \
+		echo "git_tag '$(git_tag)' is not valid. Valid example: v0.14.3"; \
+		exit 1; \
+	fi
+
+set_version_tag:: exit_on_dirty_git check_git_tag
+	@echo "Version tag for this commit will be: ${git_tag}"
+	@echo "Delete version tag if it exsists"
+	-git push origin :refs/tags/${git_tag}
+	-git tag -d ${git_tag}
+	@echo "Set tag."
+	git tag -a ${git_tag} -m ""
+	git push origin refs/tags/${git_tag}
