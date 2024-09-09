@@ -20,5 +20,7 @@ func getBaseOptions() integration.ProgramTestOptions {
 	return integration.ProgramTestOptions{
 		RunUpdateTest:        false,
 		ExpectRefreshChanges: true,
+		// RequireService:       false,
+		Verbose:              true,
 	}
 }

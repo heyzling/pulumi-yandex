@@ -1,0 +1,5 @@
+{
+  "resource": true,
+  "name": "yandex",
+  "server": "https://github.com/heyzling/pulumi-yandex/releases/"
+}
