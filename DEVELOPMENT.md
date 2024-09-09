@@ -165,7 +165,7 @@ sudo dnf install -y dotnet-sdk-6.0
 1. Поправить импорт и метадату для сборки провайдера в `provider/resources.go`
    1. Заменить болванку пакета собираемого провайдера на оригинальный провайдер yadex-cloud для Terraform: 
       ```bash
-         sed 's/github.com\/iwahbe\/terraform-provider-yandex\/provider/github.com\/yandex-cloud\/terraform-provider-yandex\/yandex/' -i ./provider/resources.go
+      sed 's/github.com\/iwahbe\/terraform-provider-yandex\/provider/github.com\/yandex-cloud\/terraform-provider-yandex\/yandex/' -i ./provider/resources.go
       ```
 
    1. Поправить некоторые свойства в конструкторе бриджа. Найдо найти функцию `Provider()` и в ней создание объекта `prov := tfbridge.ProviderInfo`. Нужно поправить в нем следующие свойства:
@@ -181,14 +181,14 @@ sudo dnf install -y dotnet-sdk-6.0
 1. Скачать зависимости.
    
    ```bash
-      # Прогнать golang-fmt, иначе будет ругаться при сборке.
-      gofmt -s -w provider/cmd/pulumi-tfgen-yandex/main.go
-      gofmt -s -w provider/cmd/pulumi-resource-yandex/main.go
+   # Прогнать golang-fmt, иначе будет ругаться при сборке.
+   gofmt -s -w provider/cmd/pulumi-tfgen-yandex/main.go
+   gofmt -s -w provider/cmd/pulumi-resource-yandex/main.go
 
-      # Скачать все зависимости для сборки бирджа провайдера
-      cd provider
-      go mod tidy 
-      cd -
+   # Скачать все зависимости для сборки бирджа провайдера
+   cd provider
+   go mod tidy 
+   cd -
    ```
    
    Если `go mod tidy` не скачивает зависимости, а просто сразу выводит пустоту - то что-то не так с кодом. сделайте `go build` для проверки синтаксиса и исправьте ошибки.
@@ -198,7 +198,7 @@ sudo dnf install -y dotnet-sdk-6.0
 1. Сгенерировать JSON схему ресурсов из Terraform провайдера: 
 
    ```bash
-      make tfgen
+   make tfgen
    ```
    
    Если идут **Warning-сообщения**, но написано что найдено N ресурсов и документация для >90% от них - то **это нормально**.
@@ -232,9 +232,9 @@ sudo dnf install -y dotnet-sdk-6.0
 
 1. Поправить конфиг линтера и прогнать его:
    ```bash
-      # поправить конфиг линтера. В оригинальном репозитории он устарел и вываливает предупреждения
-      cat > .golangci.yml << EOF
-      linters:
+   # поправить конфиг линтера. В оригинальном репозитории он устарел и вываливает предупреждения
+   cat > .golangci.yml << EOF
+   linters:
       enable:
          - gosimple
          - staticcheck
@@ -251,28 +251,28 @@ sudo dnf install -y dotnet-sdk-6.0
          - unconvert
          - unused
       enable-all: false
-      run:
+   run:
       timeout: 20m
-      issues:
+   issues:
       exclude-files:
          - schema.go
          - pulumiManifest.go
 
-      EOF
+   EOF
 
-      # прогнать линтер. Никаких ошибок быть не должно. Но если вдруг есть - нужно исправить.
-      make lint_provider
+   # прогнать линтер. Никаких ошибок быть не должно. Но если вдруг есть - нужно исправить.
+   make lint_provider
    ```
 
 1. Собрать все доступные SDK. 
    ```bash
-      # собрать
-      make build_nodejs build_python build_go build_dotnet
+   # собрать
+   make build_nodejs build_python build_go build_dotnet
 
-      # Закоммитить в репозиторий.
-      # Собранные SDK должны быть в репозитории по рекомендации Pulumi
-      git add sdk/**
-      git commit -m "build SDKs"
+   # Закоммитить в репозиторий.
+   # Собранные SDK должны быть в репозитории по рекомендации Pulumi
+   git add sdk/**
+   git commit -m "build SDKs"
    ```
 
 ## 4. Тестирование
